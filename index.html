@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fasteners in Wood Frame Construction — Interactive Quiz</title>
+<style>
+  :root { --fg:#111; --muted:#666; --bg:#fff; --accent:#2563eb; --ok:#16a34a; --bad:#dc2626; --card:#f8fafc; }
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;line-height:1.45}
+  header{padding:1.25rem 1rem;border-bottom:1px solid #e5e7eb;background:#fff;position:sticky;top:0;z-index:5}
+  header h1{font-size:1.25rem;margin:0}
+  main{max-width:900px;margin:0 auto;padding:1rem}
+  .card{background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:1rem;margin:0 0 1rem 0}
+  .q{font-weight:600;margin:.25rem 0 .5rem}
+  .opts{display:grid;gap:.5rem}
+  .opt{display:flex;align-items:flex-start;gap:.5rem;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:.6rem .75rem;cursor:pointer}
+  .opt input{margin-top:.15rem}
+  .opt.correct{border-color:var(--ok);background:#f0fdf4}
+  .opt.incorrect{border-color:var(--bad);background:#fef2f2}
+  .feedback{font-size:.92rem;margin-top:.5rem}
+  .feedback.ok{color:var(--ok)}
+  .feedback.bad{color:var(--bad)}
+  .controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem}
+  button{appearance:none;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:.6rem .9rem;cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .muted{color:var(--muted)}
+  .meta{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .score{font-weight:700}
+  .hidden{display:none !important}
+  footer{padding:1rem;color:var(--muted);text-align:center}
+  @media (prefers-color-scheme: dark){
+    :root{ --fg:#f5f5f5; --muted:#cbd5e1; --bg:#0b0f19; --accent:#3b82f6; --ok:#22c55e; --bad:#ef4444; --card:#0f172a; }
+    header,button{background:#0f172a;border-color:#1f2937}
+    .opt{background:#0b1220;border-color:#1f2937}
+    .opt.correct{background:#052e16;border-color:#14532d}
+    .opt.incorrect{background:#2a0e0e;border-color:#7f1d1d}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fasteners in Wood Frame Construction — Interactive Quiz</h1>
+</header>
+<main>
+  <div class="meta card">
+    <div>
+      <div class="muted">Based on your reading</div>
+      <div class="score">Score: <span id="scoreVal">0</span>/<span id="totalVal">0</span></div>
+    </div>
+    <div class="controls">
+      <button id="checkAll" class="primary">Check answers</button>
+      <button id="shuffle">Shuffle questions</button>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="card">
+    <strong>How to use</strong>
+    <ul>
+      <li>Select an answer for each question, then click <em>Check answers</em>.</li>
+      <li>Correct choices turn green; incorrect choices turn red with feedback.</li>
+      <li>Use <em>Shuffle questions</em> for variety or <em>Reset</em> to clear selections.</li>
+    </ul>
+  </div>
+</main>
+<footer>
+  © Fasteners quiz for classroom use
+</footer>
+
+<script>
+const DATA = [
+  { q:"Which property describes a fastener’s ability to resist being pulled out of wood?",
+    options:["Shear strength","Brittleness","Withdrawal resistance","Ductility"],
+    answer:2, why:"Withdrawal resistance is the capacity to resist pull-out (often increased by ring/spiral shanks, wood density, and technique)." },
+  { q:"Which nail type offers the highest withdrawal strength due to its shank form?",
+    options:["Bright common nail","Box nail","Ring nail","Duplex nail"],
+    answer:2, why:"Ring nails have ridges that significantly increase holding power, ideal for subflooring and pneumatic nailers." },
+  { q:"Why blunt the tip of a nail before driving?",
+    options:["Easier removal later","Prevents splitting the wood","Improves corrosion resistance","Increases shear strength"],
+    answer:1, why:"A blunted tip cuts fibers rather than wedges them apart, reducing splitting and improving holding power." },
+  { q:"For vertical loads on a deck ledger, which fastener type generally has better shear strength?",
+    options:["Drywall screw","Common nail","Deck screw","Box nail"],
+    answer:1, why:"Comparable-sized nails typically outperform common deck/drywall screws in shear; hanger nails are specialized for shear." },
+  { q:"Which finish is best for maximum corrosion resistance in marine or harsh exterior settings?",
+    options:["Bright finish","Phoscoated","Hot-dipped galvanized","Stainless steel"],
+    answer:3, why:"Stainless steel provides the highest corrosion resistance; hot-dip galvanized is excellent for many exterior uses." },
+  { q:"Hanger nails are primarily designed to resist:",
+    options:["Withdrawal","Shear","Corrosion","Bending"],
+    answer:1, why:"Hanger nails have short, thick shanks intended to carry shear loads in connectors like joist hangers." },
+  { q:"Ardox (spiral) nails are best described as:",
+    options:["High shear, easy to remove","Superior holding, lower shear","Used for temporary formwork","Two-headed for easy pulling"],
+    answer:1, why:"Spiral shanks boost withdrawal strength (holding), but the thinner shank lowers shear; they’re also hard to remove." },
+  { q:"Why are typical (non-structural) screws often avoided for framing?",
+    options:["Too expensive","Corrode faster than nails","Brittle steel with low ductility","Lower withdrawal strength than nails"],
+    answer:2, why:"Many common screws are high-carbon and brittle; in seismic events they can snap instead of bend. Use structural screws instead." },
+  { q:"For ACQ-treated lumber in a wet location, choose:",
+    options:["Bright common nail","Hot-dipped galvanized nail","Stainless or epoxy-coated fastener","Aluminum nail"],
+    answer:2, why:"ACQ is highly corrosive; stainless or epoxy-coated fasteners are recommended for wet/exterior conditions." },
+  { q:"Which bolt provides a low-profile, tamper-resistant head?",
+    options:["Machine bolt","Carriage bolt","Lag bolt","Anchor bolt"],
+    answer:1, why:"Carriage bolts have a rounded, low-profile head that’s harder to grip from the exposed side." }
+];
+
+let selections = new Array(DATA.length).fill(null);
+
+function el(tag, cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
+
+function render(){
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML='';
+  document.getElementById('totalVal').textContent = DATA.length;
+  document.getElementById('scoreVal').textContent = 0;
+
+  DATA.forEach((item, idx) => {
+    const card = el('section','card');
+    const q = el('div','q');
+    q.textContent = (idx+1)+'. '+item.q;
+    card.appendChild(q);
+
+    const opts = el('div','opts');
+    item.options.forEach((txt, oi) => {
+      const label = el('label','opt');
+      label.setAttribute('data-q', idx);
+      label.setAttribute('data-o', oi);
+      const input = document.createElement('input');
+      input.type='radio'; input.name='q'+idx; input.value=oi;
+      input.addEventListener('change', () => { selections[idx]=oi; clearFeedback(card); });
+      const span = document.createElement('span'); span.textContent = txt;
+      label.appendChild(input); label.appendChild(span);
+      opts.appendChild(label);
+    });
+    card.appendChild(opts);
+
+    const fb = el('div','feedback hidden');
+    card.appendChild(fb);
+
+    quiz.appendChild(card);
+  });
+}
+
+function clearFeedback(card){
+  card.querySelectorAll('.opt').forEach(o => { o.classList.remove('correct','incorrect'); });
+  const fb = card.querySelector('.feedback'); fb.className = 'feedback hidden'; fb.textContent='';
+}
+
+function checkAll(){
+  let score = 0;
+  const cards = Array.from(document.querySelectorAll('#quiz .card'));
+  cards.forEach((card, idx) => {
+    const chosen = selections[idx];
+    const correct = DATA[idx].answer;
+    const opts = card.querySelectorAll('.opt');
+    opts.forEach(o => o.classList.remove('correct','incorrect'));
+    const fb = card.querySelector('.feedback');
+
+    if(chosen===null){
+      fb.className = 'feedback bad';
+      fb.textContent = 'No selection made.';
+      return;
+    }
+    if(chosen===correct){
+      score++;
+      opts[chosen].classList.add('correct');
+      fb.className = 'feedback ok';
+      fb.textContent = 'Correct — '+DATA[idx].why;
+    } else {
+      opts[chosen].classList.add('incorrect');
+      opts[correct].classList.add('correct');
+      fb.className = 'feedback bad';
+      fb.textContent = 'Not quite — '+DATA[idx].why;
+    }
+  });
+  document.getElementById('scoreVal').textContent = score;
+}
+
+function shuffle(){
+  for(let i=DATA.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [DATA[i],DATA[j]] = [DATA[j],DATA[i]];
+  }
+  selections = new Array(DATA.length).fill(null);
+  render();
+}
+
+function resetAll(){
+  selections = new Array(DATA.length).fill(null);
+  render();
+}
+
+document.getElementById('checkAll').addEventListener('click', checkAll);
+document.getElementById('shuffle').addEventListener('click', shuffle);
+document.getElementById('reset').addEventListener('click', resetAll);
+
+render();
+</script>
+</body>
+</html>
